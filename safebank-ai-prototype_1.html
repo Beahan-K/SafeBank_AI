@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeBank AI — Adaptive Fraud Protection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B0F17;
+  --surface:#141B29;
+  --surface-2:#1C2536;
+  --surface-3:#26314668;
+  --hair:#2A3448;
+  --text:#EDEFF4;
+  --muted:#8A93A8;
+  --faint:#5C6478;
+  --gold:#C9A227;
+  --gold-soft:#E4C662;
+  --low:#2FAE6B;
+  --low-bg:#12291F;
+  --med:#E3A72E;
+  --med-bg:#2B230F;
+  --high:#E5484D;
+  --high-bg:#2B1416;
+  --radius-s:6px;
+  --radius-m:10px;
+  --radius-l:18px;
+  --serif:'Newsreader', serif;
+  --sans:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  background:var(--ink);
+  color:var(--text);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+input{font-family:inherit; color:inherit;}
+::selection{background:var(--gold); color:#141B29;}
+a{color:inherit;}
+
+/* ---------- shell ---------- */
+#app{min-height:100vh;}
+.shell{display:flex; min-height:100vh;}
+.rail{
+  width:230px; flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--hair);
+  display:flex; flex-direction:column;
+  padding:22px 16px;
+}
+.rail .brand{
+  display:flex; align-items:center; gap:9px;
+  padding:2px 6px 22px 6px;
+  border-bottom:1px solid var(--hair);
+  margin-bottom:18px;
+}
+.rail .brand .mark{
+  width:30px; height:30px; border-radius:8px;
+  background:linear-gradient(160deg, var(--gold-soft), var(--gold) 70%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px; color:#1a1406; flex-shrink:0;
+}
+.rail .brand .word{font-family:var(--serif); font-size:18px; letter-spacing:0.2px;}
+.rail .persona-toggle{
+  display:flex; background:var(--surface-2); border-radius:var(--radius-m);
+  padding:3px; margin-bottom:22px; border:1px solid var(--hair);
+}
+.rail .persona-toggle button{
+  flex:1; padding:8px 6px; font-size:12.5px; font-weight:600; color:var(--muted);
+  border-radius:7px; transition:background .15s, color .15s;
+}
+.rail .persona-toggle button.active{background:var(--gold); color:#1a1406;}
+.rail nav{display:flex; flex-direction:column; gap:3px;}
+.rail nav button{
+  display:flex; align-items:center; gap:11px;
+  padding:10px 12px; border-radius:var(--radius-m);
+  font-size:14px; font-weight:500; color:var(--muted);
+  text-align:left;
+}
+.rail nav button .ic{width:18px; text-align:center; font-size:15px;}
+.rail nav button:hover{background:var(--surface-2); color:var(--text);}
+.rail nav button.active{background:var(--surface-2); color:var(--gold-soft);}
+.rail .footer-note{margin-top:auto; padding:14px 8px 4px; font-size:11px; color:var(--faint); line-height:1.5; border-top:1px solid var(--hair);}
+.rail .logout{margin-top:10px; padding:9px 12px; font-size:13px; color:var(--faint); text-align:left; border-radius:var(--radius-m);}
+.rail .logout:hover{color:var(--high); background:var(--high-bg);}
+
+.main{flex:1; min-width:0; padding:34px 40px 60px; max-width:1000px;}
+.main-narrow{max-width:640px;}
+
+.pagehead{margin-bottom:26px;}
+.pagehead h1{font-family:var(--serif); font-weight:500; font-size:28px; letter-spacing:0.1px;}
+.pagehead p{color:var(--muted); font-size:14px; margin-top:5px;}
+
+/* ---------- login ---------- */
+.login-wrap{
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:
+    radial-gradient(ellipse 700px 500px at 20% 10%, #172038 0%, transparent 60%),
+    radial-gradient(ellipse 700px 500px at 85% 90%, #1a1608 0%, transparent 55%),
+    var(--ink);
+  padding:20px;
+}
+.login-card{width:100%; max-width:380px;}
+.login-card .mark{
+  width:52px; height:52px; border-radius:14px; margin:0 auto 20px;
+  background:linear-gradient(160deg, var(--gold-soft), var(--gold) 70%);
+  display:flex; align-items:center; justify-content:center; font-size:24px; color:#1a1406;
+}
+.login-card h1{font-family:var(--serif); font-weight:500; font-size:30px; text-align:center;}
+.login-card .tag{text-align:center; color:var(--muted); font-size:14px; margin-top:8px; margin-bottom:34px;}
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:7px; font-weight:500;}
+.field input{
+  width:100%; padding:13px 14px; background:var(--surface);
+  border:1px solid var(--hair); border-radius:var(--radius-m);
+  font-size:15px; color:var(--text); letter-spacing:0.3px;
+}
+.field input:focus{outline:none; border-color:var(--gold);}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:13px 18px; border-radius:var(--radius-m); font-size:14.5px; font-weight:600;
+  transition:transform .1s, filter .15s;
+}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:var(--gold); color:#1a1406; width:100%;}
+.btn-primary:hover{filter:brightness(1.08);}
+.btn-ghost{background:var(--surface-2); color:var(--text); border:1px solid var(--hair);}
+.btn-ghost:hover{background:var(--surface-3);}
+.btn-danger{background:var(--high-bg); color:#ff9b9e; border:1px solid #4a2226;}
+.btn-danger:hover{filter:brightness(1.15);}
+.btn-block{width:100%;}
+.btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+.login-demo{margin-top:22px; text-align:center; font-size:12.5px; color:var(--faint);}
+.login-demo b{color:var(--muted); font-family:var(--mono); font-weight:500;}
+
+/* ---------- generic components ---------- */
+.card{background:var(--surface); border:1px solid var(--hair); border-radius:var(--radius-l); padding:22px;}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.balance-block{
+  background:linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
+  border:1px solid var(--hair); border-radius:var(--radius-l); padding:26px 26px 22px;
+  margin-bottom:22px;
+}
+.balance-block .lbl{font-size:12.5px; color:var(--muted); font-weight:500;}
+.balance-block .amt{font-family:var(--mono); font-size:36px; font-weight:600; margin-top:8px; letter-spacing:-0.5px;}
+.balance-block .status{display:flex; align-items:center; gap:7px; margin-top:14px; font-size:12.5px; color:var(--low);}
+.dot{width:7px; height:7px; border-radius:50%; background:currentColor; display:inline-block; box-shadow:0 0 0 3px color-mix(in srgb, currentColor 25%, transparent);}
+
+.action-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:26px;}
+.action-tile{
+  background:var(--surface); border:1px solid var(--hair); border-radius:var(--radius-l);
+  padding:18px; text-align:left; display:flex; flex-direction:column; gap:10px;
+  transition:border-color .15s, transform .1s;
+}
+.action-tile:hover{border-color:var(--gold); transform:translateY(-1px);}
+.action-tile .ic{font-size:20px;}
+.action-tile .t{font-size:14.5px; font-weight:600;}
+.action-tile .d{font-size:12px; color:var(--muted);}
+
+.section-h{font-size:12.5px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin:26px 0 12px;}
+.section-h:first-child{margin-top:0;}
+
+.txn-row{
+  display:flex; align-items:center; gap:13px; padding:13px 4px;
+  border-bottom:1px solid var(--hair);
+}
+.txn-row:last-child{border-bottom:none;}
+.txn-row .icon{
+  width:36px; height:36px; border-radius:10px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:15px;
+  background:var(--surface-2);
+}
+.txn-row .who{font-size:14px; font-weight:500;}
+.txn-row .when{font-size:12px; color:var(--faint); margin-top:2px;}
+.txn-row .amt{font-family:var(--mono); font-size:14.5px; font-weight:600; margin-left:auto;}
+.txn-row .amt.out{color:var(--text);}
+.txn-row .amt.in{color:var(--low);}
+.risk-chip{
+  font-size:10.5px; font-weight:700; padding:3px 7px; border-radius:5px;
+  margin-left:10px; letter-spacing:0.02em;
+}
+.risk-chip.low{background:var(--low-bg); color:var(--low);}
+.risk-chip.medium{background:var(--med-bg); color:var(--med);}
+.risk-chip.high{background:var(--high-bg); color:var(--high);}
+
+/* ---------- send money ---------- */
+.preset-row{display:flex; gap:8px; margin-bottom:22px; flex-wrap:wrap;}
+.preset-btn{
+  padding:8px 13px; border-radius:20px; font-size:12.5px; font-weight:600;
+  border:1px solid var(--hair); background:var(--surface); color:var(--muted);
+}
+.preset-btn:hover{border-color:var(--gold-soft); color:var(--text);}
+.toggle-row{display:flex; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px solid var(--hair);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-row .t{font-size:13.5px;}
+.toggle-row .s{font-size:11.5px; color:var(--faint);}
+.switch{width:38px; height:22px; border-radius:20px; background:var(--surface-3); position:relative; transition:background .15s; flex-shrink:0;}
+.switch.on{background:var(--gold);}
+.switch::after{content:''; position:absolute; width:16px; height:16px; border-radius:50%; background:#fff; top:3px; left:3px; transition:left .15s;}
+.switch.on::after{left:19px;}
+
+/* ---------- risk result screens ---------- */
+.risk-hero{text-align:center; padding:8px 0 26px;}
+.gauge-wrap{position:relative; width:180px; height:180px; margin:0 auto 18px;}
+.gauge-wrap svg{transform:rotate(-90deg);}
+.gauge-num{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.gauge-num .n{font-family:var(--mono); font-size:38px; font-weight:700;}
+.gauge-num .l{font-size:11px; color:var(--muted); margin-top:2px;}
+.risk-badge{
+  display:inline-flex; align-items:center; gap:8px; padding:9px 18px; border-radius:24px;
+  font-size:14px; font-weight:700; margin-bottom:10px;
+}
+.risk-badge.low{background:var(--low-bg); color:var(--low);}
+.risk-badge.medium{background:var(--med-bg); color:var(--med);}
+.risk-badge.high{background:var(--high-bg); color:var(--high);}
+.risk-title{font-family:var(--serif); font-size:24px; font-weight:500; margin-bottom:6px;}
+.risk-sub{color:var(--muted); font-size:14.5px; max-width:440px; margin:0 auto;}
+.factor-list{margin:22px 0;}
+.factor-row{
+  display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--hair);
+}
+.factor-row:last-child{border-bottom:none;}
+.factor-row .bar-bg{flex:1; height:6px; background:var(--surface-2); border-radius:4px; overflow:hidden;}
+.factor-row .bar-fill{height:100%; border-radius:4px;}
+.factor-row .name{font-size:13.5px; width:190px; flex-shrink:0; color:var(--muted);}
+.factor-row .val{font-family:var(--mono); font-size:13px; width:34px; text-align:right; flex-shrink:0;}
+.btn-row{display:flex; gap:10px; margin-top:24px;}
+.btn-row .btn{flex:1;}
+.protection-banner{
+  display:flex; gap:12px; align-items:flex-start; padding:14px 16px; border-radius:var(--radius-m);
+  background:var(--surface-2); border:1px solid var(--hair); margin-top:20px; font-size:13px; color:var(--muted);
+}
+.protection-banner .ic{font-size:16px; flex-shrink:0;}
+
+/* ---------- scam scanner ---------- */
+textarea.scam-input{
+  width:100%; min-height:110px; background:var(--surface); border:1px solid var(--hair);
+  border-radius:var(--radius-m); padding:14px; font-size:14px; color:var(--text); resize:vertical;
+  font-family:var(--sans); line-height:1.5;
+}
+textarea.scam-input:focus{outline:none; border-color:var(--gold);}
+.sample-row{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+.signal-tag{
+  display:flex; align-items:center; gap:8px; padding:9px 12px; background:var(--surface-2);
+  border-radius:var(--radius-s); font-size:13px; margin-bottom:7px; border-left:3px solid var(--high);
+}
+
+/* ---------- safety center ---------- */
+.protect-row{display:flex; align-items:center; justify-content:space-between; padding:13px 4px; border-bottom:1px solid var(--hair);}
+.protect-row:last-child{border-bottom:none;}
+.protect-row .t{font-size:14px;}
+.check{color:var(--low); font-weight:700;}
+.alert-strip{
+  display:flex; gap:12px; align-items:flex-start; padding:13px 14px; border-radius:var(--radius-m);
+  border-left:3px solid var(--hair); background:var(--surface-2); margin-bottom:9px; font-size:13px;
+}
+.alert-strip.high{border-color:var(--high);}
+.alert-strip.medium{border-color:var(--med);}
+.alert-strip.low{border-color:var(--low);}
+.alert-strip .time{color:var(--faint); font-size:11.5px; margin-top:2px;}
+
+/* ---------- profile card ---------- */
+.profile-card{display:flex; gap:16px; align-items:center; margin-bottom:22px;}
+.avatar{width:54px; height:54px; border-radius:14px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:20px; flex-shrink:0; border:1px solid var(--hair);}
+.kv-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px 22px; margin-top:18px;}
+.kv .k{font-size:11.5px; color:var(--faint); margin-bottom:4px;}
+.kv .v{font-size:14px; font-weight:500;}
+.profile-switch{display:flex; gap:8px; margin-bottom:22px;}
+.profile-switch button{flex:1; padding:12px; border-radius:var(--radius-m); border:1px solid var(--hair); background:var(--surface); text-align:left;}
+.profile-switch button.active{border-color:var(--gold); background:var(--surface-2);}
+.profile-switch .name{font-size:13.5px; font-weight:600;}
+.profile-switch .sub{font-size:11.5px; color:var(--muted); margin-top:2px;}
+
+/* ---------- admin ---------- */
+.stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:22px;}
+.stat-tile{background:var(--surface); border:1px solid var(--hair); border-radius:var(--radius-l); padding:18px;}
+.stat-tile .n{font-family:var(--mono); font-size:24px; font-weight:700;}
+.stat-tile .l{font-size:11.5px; color:var(--muted); margin-top:5px;}
+.stat-tile.hi .n{color:var(--high);}
+.bar-chart-row{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
+.bar-chart-row .lbl{width:90px; font-size:12.5px; color:var(--muted); flex-shrink:0;}
+.bar-chart-row .track{flex:1; height:12px; background:var(--surface-2); border-radius:6px; overflow:hidden;}
+.bar-chart-row .fill{height:100%; border-radius:6px;}
+.bar-chart-row .val{width:52px; text-align:right; font-family:var(--mono); font-size:12px; color:var(--muted);}
+.admin-alert{
+  display:grid; grid-template-columns:auto 90px 1fr 70px; gap:14px; align-items:center;
+  padding:13px 6px; border-bottom:1px solid var(--hair); font-size:13.5px; text-align:left; width:100%;
+}
+.admin-alert:hover{background:var(--surface-2); border-radius:var(--radius-s);}
+.admin-alert .amt{font-family:var(--mono); font-weight:600;}
+.admin-alert .risk-num{font-family:var(--mono); font-weight:700;}
+.back-link{font-size:13px; color:var(--muted); margin-bottom:16px; display:inline-flex; align-items:center; gap:6px;}
+.back-link:hover{color:var(--gold-soft);}
+.detail-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px 26px; margin:20px 0 26px;}
+
+.toast{
+  position:fixed; bottom:26px; right:26px; background:var(--surface-2); border:1px solid var(--hair);
+  border-left:3px solid var(--gold); padding:14px 18px; border-radius:var(--radius-m); font-size:13.5px;
+  max-width:320px; box-shadow:0 12px 30px rgba(0,0,0,.4); z-index:50; animation:toastin .2s ease-out;
+}
+@keyframes toastin{from{transform:translateY(8px); opacity:0;} to{transform:translateY(0); opacity:1;}}
+
+.empty{color:var(--faint); font-size:13.5px; padding:24px 4px; text-align:center;}
+
+@media (max-width: 860px){
+  .shell{flex-direction:column;}
+  .rail{width:100%; flex-direction:row; align-items:center; padding:12px 16px; overflow-x:auto;}
+  .rail .brand{border:none; padding:0; margin:0 14px 0 0;}
+  .rail .persona-toggle{margin:0 10px 0 0;}
+  .rail nav{flex-direction:row;}
+  .rail .footer-note, .rail .logout{display:none;}
+  .main{padding:22px 18px 50px;}
+  .action-grid, .grid-2, .stat-grid, .detail-grid, .kv-grid{grid-template-columns:1fr 1fr;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================= DATA / STATE ============================= */
+
+const PROFILES = {
+  A: { name:'Beahan K.', short:'BK', age:25, experience:'High', protection:'Standard', normalAmount:6000,
+       trustedContact:false, sub:'Age 25 · Standard protection' },
+  B: { name:'Beahan K.', short:'BK', age:68, experience:'Low', protection:'Enhanced', normalAmount:2000,
+       trustedContact:true, sub:'Age 68 · Enhanced protection' }
+};
+
+const SCENARIOS = {
+  normal:    { label:'Normal', amount:500,  newBeneficiary:false, newDevice:false, unusualLocation:false, unusualTime:false, rapidTx:false, recipient:'Arun Kumar', upi:'arun@upi' },
+  suspicious:{ label:'Suspicious', amount:15000, newBeneficiary:true, newDevice:false, unusualLocation:false, unusualTime:false, rapidTx:false, recipient:'Unknown Beneficiary', upi:'newuser2214@upi' },
+  high:      { label:'High risk', amount:50000, newBeneficiary:true, newDevice:false, unusualLocation:true, unusualTime:true, rapidTx:true, recipient:'Unknown Beneficiary', upi:'ext-transfer@upi' }
+};
+
+const SCAM_SAMPLES = [
+  "Your bank account will be blocked today. Send Rs.10,000 immediately to verify your account and avoid suspension.",
+  "Congratulations! You have won a lottery prize of Rs.5,00,000. Share your OTP now to claim your reward.",
+  "Hi, are we still meeting for lunch tomorrow at 1pm?"
+];
+
+const SCAM_SIGNALS = [
+  { key:/\b(block|blocked|suspend|suspended|frozen|deactivat\w*)\b/i, label:'Threat of account closure', weight:26 },
+  { key:/\b(immediately|urgent\w*|right away|today only|within \d+ (hour|minute|hr|min))\b/i, label:'Urgent language / time pressure', weight:20 },
+  { key:/\b(send|transfer|pay|deposit)\b.{0,20}\b(rs\.?|inr|₹|rupees)\b|\b(rs\.?|inr|₹)\s?[\d,]+/i, label:'Request for money transfer', weight:24 },
+  { key:/\b(otp|pin|cvv|password|verify your account|kyc|verification)\b/i, label:'Financial verification request', weight:22 },
+  { key:/\b(won|winner|lottery|prize|reward|lucky draw)\b/i, label:'Unrealistic reward / lottery claim', weight:18 },
+  { key:/(https?:\/\/|www\.)\S+|\bclick (here|the link)\b/i, label:'Suspicious link', weight:16 },
+];
+
+/* ============================= APP STATE ============================= */
+
+let state = {
+  loggedIn:false,
+  mobile:'', pin:'',
+  loginError:'',
+  persona:'customer', // customer | admin
+  screen:'dashboard',
+  profileKey:'A',
+  history:[
+    {who:'Arun', dir:'out', amount:500, when:'Today, 6:12 PM', risk:'low'},
+    {who:'Priya', dir:'in', amount:1200, when:'Today, 2:40 PM', risk:null},
+    {who:'Kumar', dir:'out', amount:2000, when:'Yesterday, 11:05 AM', risk:'low'},
+    {who:'Electricity Board', dir:'out', amount:1840, when:'2 days ago', risk:'low'},
+  ],
+  send:{ recipient:'', upi:'', amount:'', message:'',
+         newBeneficiary:false, newDevice:false, unusualLocation:false, unusualTime:false, rapidTx:false },
+  pendingRisk:null,
+  scamInput:'',
+  scamResult:null,
+  trustedContactOn:true,
+  toast:null,
+  adminAlerts:[
+    {id:'TXN_938472', user:'User #1023', amount:50000, risk:94, level:'high', beneficiary:'NEW', device:'Known', location:'Unusual', time:'02:14 AM', factors:[['Transaction amount',25],['New beneficiary',20],['Unusual location',15],['Unusual time',10],['Behavior change',24]]},
+    {id:'TXN_881233', user:'User #1921', amount:18000, risk:63, level:'medium', beneficiary:'NEW', device:'Known', location:'Normal', time:'4:32 PM', factors:[['Transaction amount',18],['New beneficiary',20],['Behavior change',25]]},
+    {id:'TXN_772210', user:'User #2214', amount:75000, risk:89, level:'high', beneficiary:'NEW', device:'Unknown', location:'Unusual', time:'11:58 PM', factors:[['Transaction amount',25],['New beneficiary',20],['New device',20],['Unusual location',15],['Unusual time',9]]},
+  ],
+  adminSelectedId:null,
+  adminStats:{ total:24582, low:21930, medium:2180, high:472, fraud:86 },
+};
+
+function setState(patch){ Object.assign(state, patch); render(); }
+
+/* ============================= RISK ENGINE ============================= */
+
+function computeRisk({amount, normalAmount, newBeneficiary, newDevice, unusualLocation, unusualTime, rapidTx}){
+  const factors = [];
+  let risk = 0;
+  const ratio = normalAmount > 0 ? amount / normalAmount : 1;
+  if (ratio > 5){ risk += 25; factors.push(['Amount far above your usual', 25]); }
+  else if (ratio > 2){ risk += 12; factors.push(['Amount above your usual', 12]); }
+  if (newBeneficiary){ risk += 20; factors.push(['New beneficiary', 20]); }
+  if (newDevice){ risk += 20; factors.push(['New device', 20]); }
+  if (unusualLocation){ risk += 15; factors.push(['Unusual location', 15]); }
+  if (unusualTime){ risk += 10; factors.push(['Unusual time', 10]); }
+  if (rapidTx){ risk += 10; factors.push(['Multiple transactions quickly', 10]); }
+  risk = Math.min(risk, 100);
+  const level = risk <= 30 ? 'low' : risk <= 70 ? 'medium' : 'high';
+  return { risk, level, factors };
+}
+
+function scanMessage(text){
+  const matched = [];
+  let score = 0;
+  SCAM_SIGNALS.forEach(sig => {
+    if (sig.key.test(text)){ matched.push(sig.label); score += sig.weight; }
+  });
+  score = Math.min(score, 98);
+  if (matched.length === 0) score = Math.max(score, 4);
+  const level = score >= 60 ? 'high' : score >= 30 ? 'medium' : 'low';
+  return { score, level, matched };
+}
+
+/* ============================= HELPERS ============================= */
+
+function rupee(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
+function levelColor(l){ return l==='low' ? 'var(--low)' : l==='medium' ? 'var(--med)' : 'var(--high)'; }
+function levelWord(l){ return l==='low' ? 'Low risk' : l==='medium' ? 'Medium risk' : 'High risk'; }
+
+function gauge(risk, level){
+  const r = 76, c = 2*Math.PI*r;
+  const pct = risk/100;
+  const color = levelColor(level);
+  return `
+  <div class="gauge-wrap">
+    <svg width="180" height="180" viewBox="0 0 180 180">
+      <circle cx="90" cy="90" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="14"/>
+      <circle cx="90" cy="90" r="${r}" fill="none" stroke="${color}" stroke-width="14"
+        stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}" stroke-linecap="round"/>
+    </svg>
+    <div class="gauge-num">
+      <div class="n">${risk}</div>
+      <div class="l">RISK SCORE</div>
+    </div>
+  </div>`;
+}
+
+function factorBars(factors){
+  if (!factors.length) return `<div class="empty">No risk factors detected.</div>`;
+  return `<div class="factor-list">` + factors.map(([name,val]) => `
+    <div class="factor-row">
+      <div class="name">${name}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(val*3,100)}%; background:var(--gold);"></div></div>
+      <div class="val">+${val}</div>
+    </div>`).join('') + `</div>`;
+}
+
+function toast(msg){
+  state.toast = msg;
+  render();
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>{ state.toast=null; render(); }, 3200);
+}
+
+/* ============================= RENDER: SHELL ============================= */
+
+function render(){
+  const app = document.getElementById('app');
+  if (!state.loggedIn){ app.innerHTML = renderLogin(); bindLogin(); return; }
+
+  app.innerHTML = `
+    <div class="shell">
+      ${renderRail()}
+      <div class="main">
+        ${state.persona==='customer' ? renderCustomerScreen() : renderAdminScreen()}
+      </div>
+    </div>
+    ${state.toast ? `<div class="toast">${state.toast}</div>` : ''}
+  `;
+  bindGlobal();
+}
+
+function renderRail(){
+  const custNav = [
+    ['dashboard','⌂','Dashboard'],
+    ['send','↗','Send money'],
+    ['history','≡','History'],
+    ['scan','◎','Scam scanner'],
+    ['safety','🛡','Safety center'],
+  ];
+  const adminNav = [
+    ['admin-dash','▤','Overview'],
+    ['admin-alerts','⚠','Fraud alerts'],
+    ['admin-customers','◐','Customer risk'],
+  ];
+  const nav = state.persona==='customer' ? custNav : adminNav;
+  const activeScreen = state.persona==='customer' ? state.screen : (state.screen.startsWith('admin')?state.screen:'admin-dash');
+
+  return `
+  <div class="rail">
+    <div class="brand"><div class="mark">🛡</div><div class="word">SafeBank AI</div></div>
+    <div class="persona-toggle">
+      <button data-act="persona" data-val="customer" class="${state.persona==='customer'?'active':''}">Customer app</button>
+      <button data-act="persona" data-val="admin" class="${state.persona==='admin'?'active':''}">Bank admin</button>
+    </div>
+    <nav>
+      ${nav.map(([key,ic,label]) => `
+        <button data-act="nav" data-val="${key}" class="${activeScreen===key?'active':''}">
+          <span class="ic">${ic}</span>${label}
+        </button>`).join('')}
+    </nav>
+    <div class="footer-note">Adaptive Fraud Protection<br>Prototype build · demo data only</div>
+    <button class="logout" data-act="logout">Log out</button>
+  </div>`;
+}
+
+/* ============================= LOGIN ============================= */
+
+function renderLogin(){
+  return `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="mark">🛡</div>
+      <h1>SafeBank AI</h1>
+      <p class="tag">Secure banking, with protection that adapts to you</p>
+      <div class="field">
+        <label>Mobile number</label>
+        <input id="in-mobile" type="text" placeholder="+91 XXXXX XXXXX" value="${state.mobile}">
+      </div>
+      <div class="field">
+        <label>PIN</label>
+        <input id="in-pin" type="password" maxlength="4" placeholder="••••" value="${state.pin}">
+      </div>
+      ${state.loginError ? `<div style="color:var(--high); font-size:12.5px; margin:-6px 0 14px;">${state.loginError}</div>` : ''}
+      <button class="btn btn-primary" data-act="login">Login securely</button>
+      <div class="login-demo">Demo account — mobile <b>any number</b>, PIN <b>1234</b></div>
+    </div>
+  </div>`;
+}
+
+function bindLogin(){
+  document.querySelector('[data-act="login"]').onclick = () => {
+    const mobile = document.getElementById('in-mobile').value.trim();
+    const pin = document.getElementById('in-pin').value.trim();
+    if (pin !== '1234'){
+      setState({ mobile, pin, loginError:'Incorrect PIN. Use 1234 for this demo.' });
+      return;
+    }
+    setState({ loggedIn:true, mobile, pin, loginError:'', screen:'dashboard' });
+  };
+}
+
+/* ============================= CUSTOMER SCREENS ============================= */
+
+function renderCustomerScreen(){
+  switch(state.screen){
+    case 'dashboard': return renderDashboard();
+    case 'send': return renderSend();
+    case 'risk-result': return renderRiskResult();
+    case 'history': return renderHistory();
+    case 'scan': return renderScan();
+    case 'safety': return renderSafety();
+    case 'trusted': return renderTrusted();
+    default: return renderDashboard();
+  }
+}
+
+function renderDashboard(){
+  const p = PROFILES[state.profileKey];
+  return `
+    <div class="balance-block">
+      <div class="lbl">Good evening, ${p.name.split(' ')[0]}</div>
+      <div class="amt">${rupee(state.balance)}.00</div>
+      <div class="status"><span class="dot"></span>Protection active — ${p.protection.toLowerCase()} level</div>
+    </div>
+    <div class="action-grid">
+      <button class="action-tile" data-act="nav" data-val="send"><div class="ic">↗</div><div class="t">Send money</div><div class="d">Transfer with risk-aware checks</div></button>
+      <button class="action-tile" data-act="nav" data-val="scan"><div class="ic">◎</div><div class="t">Scam scanner</div><div class="d">Check a suspicious message</div></button>
+      <button class="action-tile" data-act="nav" data-val="history"><div class="ic">≡</div><div class="t">Transaction history</div><div class="d">See recent activity</div></button>
+      <button class="action-tile" data-act="nav" data-val="safety"><div class="ic">🛡</div><div class="t">Safety center</div><div class="d">Review your protections</div></button>
+    </div>
+    <div class="section-h">Recent activity</div>
+    <div class="card" style="padding:6px 18px;">
+      ${state.history.slice(0,4).map(txnRow).join('')}
+    </div>
+  `;
+}
+
+function txnRow(t){
+  return `
+  <div class="txn-row">
+    <div class="icon">${t.dir==='in'?'↓':'↑'}</div>
+    <div>
+      <div class="who">${t.dir==='in'?'Received from':'Sent to'} ${t.who}</div>
+      <div class="when">${t.when}</div>
+    </div>
+    <div class="amt ${t.dir}">${t.dir==='in'?'+':'-'}${rupee(t.amount)}</div>
+    ${t.risk ? `<span class="risk-chip ${t.risk}">${t.risk.toUpperCase()}</span>` : ''}
+  </div>`;
+}
+
+function renderHistory(){
+  return `
+    <div class="pagehead"><h1>Transaction history</h1><p>Every transfer, with the risk level it was screened at.</p></div>
+    <div class="card" style="padding:6px 18px;">
+      ${state.history.map(txnRow).join('')}
+    </div>
+  `;
+}
+
+function renderSend(){
+  const s = state.send;
+  return `
+    <div class="pagehead"><h1>Send money</h1><p>Every transfer is screened by the risk engine before it goes through.</p></div>
+
+    <div class="preset-row">
+      <button class="preset-btn" data-act="preset" data-val="normal">Try: normal transfer</button>
+      <button class="preset-btn" data-act="preset" data-val="suspicious">Try: suspicious transfer</button>
+      <button class="preset-btn" data-act="preset" data-val="high">Try: high-risk transfer</button>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label>Recipient</label>
+        <input id="f-recipient" type="text" placeholder="Arun Kumar" value="${s.recipient}">
+      </div>
+      <div class="field">
+        <label>Account / UPI</label>
+        <input id="f-upi" type="text" placeholder="name@upi" value="${s.upi}">
+      </div>
+      <div class="field">
+        <label>Amount (₹)</label>
+        <input id="f-amount" type="number" placeholder="500" value="${s.amount}">
+      </div>
+      <div class="field">
+        <label>Message (optional)</label>
+        <input id="f-message" type="text" placeholder="" value="${s.message}">
+      </div>
+
+      <div class="section-h" style="margin-top:22px;">Simulated signals (demo controls)</div>
+      ${toggleRow('newBeneficiary','New beneficiary','This recipient has never been paid before')}
+      ${toggleRow('newDevice','New device','Sign-in from a device not seen before')}
+      ${toggleRow('unusualLocation','Unusual location','Login location differs from usual pattern')}
+      ${toggleRow('unusualTime','Unusual time','Outside the customer\\'s typical activity hours')}
+      ${toggleRow('rapidTx','Multiple transactions quickly','Several transfers in a short window')}
+
+      <button class="btn btn-primary btn-block" style="margin-top:22px;" data-act="continue-send">Continue</button>
+    </div>
+  `;
+}
+
+function toggleRow(key, title, sub){
+  const on = state.send[key];
+  return `
+  <div class="toggle-row">
+    <div><div class="t">${title}</div><div class="s">${sub}</div></div>
+    <button class="switch ${on?'on':''}" data-act="toggle" data-val="${key}"></button>
+  </div>`;
+}
+
+function renderRiskResult(){
+  const r = state.pendingRisk;
+  if (!r) return renderSend();
+  const p = PROFILES[state.profileKey];
+  const s = state.send;
+
+  let title, sub, badgeWord, ctaRow;
+  if (r.level === 'low'){
+    title = 'Transaction approved';
+    sub = `${rupee(s.amount)} to ${s.recipient || 'recipient'} matches your usual pattern.`;
+    ctaRow = `
+      <div class="btn-row">
+        <button class="btn btn-primary" style="flex:2;" data-act="finalize-send">Done</button>
+      </div>`;
+  } else if (r.level === 'medium'){
+    title = 'Please verify this transaction';
+    sub = `${rupee(s.amount)} to ${s.recipient || 'a new recipient'} is higher than your usual transfers or involves a new signal.`;
+    ctaRow = `
+      <div class="btn-row">
+        <button class="btn btn-ghost" style="flex:1;" data-act="cancel-send">Cancel</button>
+        <button class="btn btn-primary" style="flex:1;" data-act="finalize-send">Verify &amp; continue</button>
+      </div>`;
+  } else {
+    title = 'Transaction temporarily paused';
+    sub = `${rupee(s.amount)} to ${s.recipient || 'an unrecognized recipient'} triggered multiple high-risk signals.`;
+    ctaRow = `
+      <div class="btn-row">
+        <button class="btn btn-ghost" style="flex:1;" data-act="cancel-send">Cancel transaction</button>
+        <button class="btn btn-primary" style="flex:1;" data-act="finalize-send">Verify identity</button>
+      </div>
+      <button class="btn btn-danger btn-block" style="margin-top:10px;" data-act="contact-bank">Contact bank</button>`;
+  }
+
+  return `
+    <div class="main-narrow">
+      <div class="risk-hero">
+        ${gauge(r.risk, r.level)}
+        <div class="risk-badge ${r.level}">${r.level==='high'?'🚨':r.level==='medium'?'⚠️':'✅'} ${levelWord(r.level)}</div>
+        <div class="risk-title">${title}</div>
+        <div class="risk-sub">${sub}</div>
+      </div>
+
+      <div class="section-h">Why we're concerned</div>
+      ${factorBars(r.factors)}
+
+      ${ctaRow}
+
+      ${ (r.level!=='low' && p.protection==='Enhanced') ? `
+      <div class="protection-banner">
+        <div class="ic">🛡</div>
+        <div>Enhanced protection is active on this account. ${p.trustedContact ? 'A verification request will also be sent to the trusted contact on file.' : 'Consider adding a trusted contact for extra verification on high-risk transfers.'}</div>
+      </div>` : ''}
+    </div>
+  `;
+}
+
+function renderScan(){
+  const res = state.scamResult;
+  return `
+    <div class="pagehead"><h1>Scam message scanner</h1><p>Paste a suspicious message to check it for common scam signals.</p></div>
+    <div class="card">
+      <textarea class="scam-input" id="scam-text" placeholder="Paste a suspicious message here...">${state.scamInput}</textarea>
+      <div class="sample-row">
+        <button class="preset-btn" data-act="scam-sample" data-idx="0">Try scam example</button>
+        <button class="preset-btn" data-act="scam-sample" data-idx="1">Try lottery example</button>
+        <button class="preset-btn" data-act="scam-sample" data-idx="2">Try safe example</button>
+      </div>
+      <button class="btn btn-primary btn-block" style="margin-top:16px;" data-act="scan-message">🔍 Scan message</button>
+    </div>
+
+    ${res ? `
+    <div class="card" style="margin-top:18px;">
+      <div style="text-align:center; padding:10px 0 6px;">
+        <div class="risk-badge ${res.level}">${res.level==='high'?'🚨 Possible scam detected':res.level==='medium'?'⚠️ Some risk signals found':'✅ Looks safe'}</div>
+        <div style="font-family:var(--mono); font-size:26px; font-weight:700; margin-top:10px;">${res.score}%</div>
+        <div style="color:var(--muted); font-size:13px;">suspicious</div>
+      </div>
+      <div class="section-h">Warning signs</div>
+      ${res.matched.length ? res.matched.map(m=>`<div class="signal-tag">✓ ${m}</div>`).join('') : `<div class="empty">No common scam signals detected.</div>`}
+      ${res.level!=='low' ? `
+      <div class="protection-banner">
+        <div class="ic">🛡</div>
+        <div>SafeBank advice: your bank will never ask you to transfer money to "verify" your account, or ask for your OTP over message.</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" style="flex:1;" data-act="scam-report">Report</button>
+        <button class="btn btn-primary" style="flex:1;" data-act="scam-delete">Delete message</button>
+      </div>` : ''}
+    </div>` : ''}
+  `;
+}
+
+function renderSafety(){
+  const p = PROFILES[state.profileKey];
+  return `
+    <div class="pagehead"><h1>Safety center</h1><p>Your account's protection status and recent safety activity.</p></div>
+
+    <div class="profile-switch">
+      ${Object.entries(PROFILES).map(([k,pr]) => `
+        <button data-act="profile" data-val="${k}" class="${state.profileKey===k?'active':''}">
+          <div class="name">Demo user ${k}</div>
+          <div class="sub">${pr.sub}</div>
+        </button>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="profile-card">
+        <div class="avatar">${p.short}</div>
+        <div>
+          <div style="font-size:16px; font-weight:600;">${p.name}</div>
+          <div style="font-size:12.5px; color:var(--muted);">Digital banking experience: ${p.experience}</div>
+        </div>
+      </div>
+      <div class="kv-grid">
+        <div class="kv"><div class="k">Protection level</div><div class="v">${p.protection}</div></div>
+        <div class="kv"><div class="k">Trusted contact</div><div class="v">${p.trustedContact ? 'Configured' : 'Not set up'}</div></div>
+        <div class="kv"><div class="k">Adaptive protection</div><div class="v" style="color:var(--low);">● On</div></div>
+        <div class="kv"><div class="k">Scam detection</div><div class="v" style="color:var(--low);">● On</div></div>
+      </div>
+    </div>
+
+    <div class="section-h">Protections on this account</div>
+    <div class="card">
+      ${['Transaction protection','New beneficiary alerts','Scam detection','Unusual device detection','Suspicious link detection','Adaptive protection'].map(t=>`
+        <div class="protect-row"><div class="t">${t}</div><div class="check">✓</div></div>`).join('')}
+    </div>
+
+    <div class="section-h">Recent safety alerts</div>
+    <div class="card">
+      <div class="alert-strip high">🚨 &nbsp;<div><div>₹35,000 transaction paused</div><div class="time">Today, 2:14 AM</div></div></div>
+      <div class="alert-strip medium">⚠️ &nbsp;<div><div>Suspicious message detected</div><div class="time">Yesterday, 4:02 PM</div></div></div>
+      <div class="alert-strip low">✓ &nbsp;<div><div>New beneficiary verified</div><div class="time">3 days ago</div></div></div>
+    </div>
+
+    <button class="btn btn-ghost btn-block" style="margin-top:18px;" data-act="nav" data-val="trusted">Trusted contact settings</button>
+  `;
+}
+
+function renderTrusted(){
+  return `
+    <button class="back-link" data-act="nav" data-val="safety">← Back to safety center</button>
+    <div class="pagehead"><h1>Trusted contact</h1><p>For extra protection, add someone you trust to help verify high-risk transactions.</p></div>
+    <div class="card">
+      <div class="field"><label>Name</label><input type="text" value="Family member" readonly></div>
+      <div class="field"><label>Relationship</label><input type="text" value="Son / Daughter / Relative" readonly></div>
+      <div class="toggle-row">
+        <div><div class="t">Trusted contact protection</div><div class="s">Status: ${state.trustedContactOn ? 'Verified' : 'Off'}</div></div>
+        <button class="switch ${state.trustedContactOn?'on':''}" data-act="toggle-trusted"></button>
+      </div>
+    </div>
+    <div class="protection-banner" style="margin-top:16px;">
+      <div class="ic">🛡</div>
+      <div>This is a simulation. Your trusted contact is never given access to your account, credentials, or funds — they can only help confirm a high-risk transfer really came from you.</div>
+    </div>
+  `;
+}
+
+/* ============================= ADMIN SCREENS ============================= */
+
+function renderAdminScreen(){
+  if (state.screen === 'admin-transaction') return renderAdminTransaction();
+  if (state.screen === 'admin-alerts') return renderAdminAlerts();
+  if (state.screen === 'admin-customers') return renderAdminCustomers();
+  return renderAdminDashboard();
+}
+
+function renderAdminDashboard(){
+  const st = state.adminStats;
+  const maxV = st.total;
+  return `
+    <div class="pagehead"><h1>Fraud monitoring</h1><p>Live view of transaction risk across all customers.</p></div>
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="n">${st.total.toLocaleString('en-IN')}</div><div class="l">Today's transactions</div></div>
+      <div class="stat-tile"><div class="n" style="color:var(--low);">${st.low.toLocaleString('en-IN')}</div><div class="l">Low risk</div></div>
+      <div class="stat-tile"><div class="n" style="color:var(--med);">${st.medium.toLocaleString('en-IN')}</div><div class="l">Medium risk</div></div>
+      <div class="stat-tile hi"><div class="n">${st.high.toLocaleString('en-IN')}</div><div class="l">High risk / fraud attempts: ${st.fraud}</div></div>
+    </div>
+
+    <div class="section-h">Risk overview</div>
+    <div class="card" style="margin-bottom:22px;">
+      <div class="bar-chart-row"><div class="lbl">🟢 Low</div><div class="track"><div class="fill" style="width:${st.low/maxV*100}%; background:var(--low);"></div></div><div class="val">${(st.low/maxV*100).toFixed(0)}%</div></div>
+      <div class="bar-chart-row"><div class="lbl">🟡 Medium</div><div class="track"><div class="fill" style="width:${st.medium/maxV*100}%; background:var(--med);"></div></div><div class="val">${(st.medium/maxV*100).toFixed(0)}%</div></div>
+      <div class="bar-chart-row"><div class="lbl">🔴 High</div><div class="track"><div class="fill" style="width:${st.high/maxV*100}%; background:var(--high);"></div></div><div class="val">${(st.high/maxV*100).toFixed(0)}%</div></div>
+    </div>
+
+    <div class="section-h">Recent alerts</div>
+    <div class="card" style="padding:6px 14px;">
+      ${state.adminAlerts.slice(0,5).map(adminAlertRow).join('')}
+    </div>
+  `;
+}
+
+function adminAlertRow(a){
+  return `
+  <button class="admin-alert" data-act="open-txn" data-val="${a.id}">
+    <span>${a.level==='high'?'🔴':a.level==='medium'?'🟡':'🟢'}</span>
+    <span class="amt">${rupee(a.amount)}</span>
+    <span style="color:var(--muted);">${a.user}</span>
+    <span class="risk-num" style="color:${levelColor(a.level)};">${a.risk}</span>
+  </button>`;
+}
+
+function renderAdminAlerts(){
+  return `
+    <div class="pagehead"><h1>Fraud alerts</h1><p>All transactions flagged medium risk or above.</p></div>
+    <div class="card" style="padding:6px 14px;">
+      ${state.adminAlerts.map(adminAlertRow).join('')}
+    </div>
+  `;
+}
+
+function renderAdminCustomers(){
+  const rows = [
+    {name:'User #1023', profile:'Enhanced', risk:'High recent activity', level:'high'},
+    {name:'User #1921', profile:'Standard', risk:'One medium alert', level:'medium'},
+    {name:'User #2214', profile:'Enhanced', risk:'High recent activity', level:'high'},
+    {name:'User #3390', profile:'Standard', risk:'No alerts', level:'low'},
+  ];
+  return `
+    <div class="pagehead"><h1>Customer risk</h1><p>Protection level is a customer setting — it does not by itself change a transaction's score.</p></div>
+    <div class="card" style="padding:6px 14px;">
+      ${rows.map(r => `
+        <div class="admin-alert" style="grid-template-columns:1fr 120px 1fr;">
+          <span>${r.name}</span>
+          <span style="color:var(--muted);">${r.profile}</span>
+          <span style="color:${levelColor(r.level)};">${r.risk}</span>
+        </div>`).join('')}
+    </div>
+  `;
+}
+
+function renderAdminTransaction(){
+  const a = state.adminAlerts.find(x => x.id === state.adminSelectedId) || state.adminAlerts[0];
+  return `
+    <button class="back-link" data-act="nav" data-val="admin-dash">← Back to overview</button>
+    <div class="pagehead"><h1>Transaction details</h1><p>${a.id}</p></div>
+
+    <div class="detail-grid">
+      <div class="kv"><div class="k">Amount</div><div class="v" style="font-family:var(--mono);">${rupee(a.amount)}</div></div>
+      <div class="kv"><div class="k">Customer</div><div class="v">${a.user}</div></div>
+      <div class="kv"><div class="k">Beneficiary</div><div class="v">${a.beneficiary}</div></div>
+      <div class="kv"><div class="k">Device</div><div class="v">${a.device}</div></div>
+      <div class="kv"><div class="k">Location</div><div class="v">${a.location}</div></div>
+      <div class="kv"><div class="k">Transaction time</div><div class="v">${a.time}</div></div>
+    </div>
+
+    <div class="section-h">AI risk analysis</div>
+    ${factorBars(a.factors)}
+
+    <div class="risk-hero" style="padding-top:6px;">
+      ${gauge(a.risk, a.level)}
+      <div class="risk-badge ${a.level}">${levelWord(a.level)}</div>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <div style="font-size:12.5px; color:var(--muted); margin-bottom:6px;">Action taken</div>
+      <div style="font-weight:700; letter-spacing:0.03em; color:${levelColor(a.level)};">
+        ${a.level==='high' ? 'TRANSACTION PAUSED' : a.level==='medium' ? 'CUSTOMER VERIFICATION REQUESTED' : 'APPROVED'}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================= EVENT BINDING ============================= */
+
+function bindGlobal(){
+  document.querySelectorAll('[data-act="nav"]').forEach(el => {
+    el.onclick = () => setState({ screen: el.dataset.val });
+  });
+  document.querySelectorAll('[data-act="persona"]').forEach(el => {
+    el.onclick = () => setState({ persona: el.dataset.val, screen: el.dataset.val==='customer' ? 'dashboard' : 'admin-dash' });
+  });
+  const logoutBtn = document.querySelector('[data-act="logout"]');
+  if (logoutBtn) logoutBtn.onclick = () => setState({ loggedIn:false, screen:'dashboard', mobile:'', pin:'' });
+
+  // Send money form
+  const fRecipient = document.getElementById('f-recipient');
+  if (fRecipient){
+    fRecipient.oninput = e => { state.send.recipient = e.target.value; };
+    document.getElementById('f-upi').oninput = e => { state.send.upi = e.target.value; };
+    document.getElementById('f-amount').oninput = e => { state.send.amount = e.target.value; };
+    document.getElementById('f-message').oninput = e => { state.send.message = e.target.value; };
+  }
+  document.querySelectorAll('[data-act="toggle"]').forEach(el => {
+    el.onclick = () => { state.send[el.dataset.val] = !state.send[el.dataset.val]; render(); };
+  });
+  document.querySelectorAll('[data-act="preset"]').forEach(el => {
+    el.onclick = () => {
+      const p = SCENARIOS[el.dataset.val];
+      state.send = { recipient:p.recipient, upi:p.upi, amount:p.amount, message:'',
+        newBeneficiary:p.newBeneficiary, newDevice:p.newDevice, unusualLocation:p.unusualLocation,
+        unusualTime:p.unusualTime, rapidTx:p.rapidTx };
+      render();
+    };
+  });
+  const contBtn = document.querySelector('[data-act="continue-send"]');
+  if (contBtn) contBtn.onclick = () => {
+    const s = state.send;
+    const amount = Number(s.amount) || 0;
+    if (amount <= 0 || !s.recipient){ toast('Enter a recipient and amount to continue.'); return; }
+    const p = PROFILES[state.profileKey];
+    const risk = computeRisk({ amount, normalAmount:p.normalAmount, newBeneficiary:s.newBeneficiary,
+      newDevice:s.newDevice, unusualLocation:s.unusualLocation, unusualTime:s.unusualTime, rapidTx:s.rapidTx });
+    setState({ pendingRisk: risk, screen:'risk-result' });
+  };
+
+  const cancelBtn = document.querySelector('[data-act="cancel-send"]');
+  if (cancelBtn) cancelBtn.onclick = () => { toast('Transaction cancelled.'); setState({ screen:'dashboard', pendingRisk:null }); };
+  const contactBank = document.querySelector('[data-act="contact-bank"]');
+  if (contactBank) contactBank.onclick = () => toast('Connecting you to SafeBank support...');
+  const finalizeBtn = document.querySelector('[data-act="finalize-send"]');
+  if (finalizeBtn) finalizeBtn.onclick = () => {
+    const r = state.pendingRisk, s = state.send;
+    const amount = Number(s.amount) || 0;
+    state.history.unshift({ who:s.recipient || 'Recipient', dir:'out', amount, when:'Just now', risk:r.level });
+    state.balance -= amount;
+    if (r.level !== 'low'){
+      state.adminAlerts.unshift({
+        id:'TXN_'+Math.floor(100000+Math.random()*899999),
+        user:'User #1001 (you)', amount, risk:r.risk, level:r.level,
+        beneficiary: s.newBeneficiary ? 'NEW' : 'Known', device: s.newDevice ? 'Unknown' : 'Known',
+        location: s.unusualLocation ? 'Unusual' : 'Normal', time: 'Just now', factors:r.factors
+      });
+    }
+    toast(r.level==='low' ? 'Transfer complete.' : 'Verification recorded — transfer complete.');
+    state.send = { recipient:'', upi:'', amount:'', message:'', newBeneficiary:false, newDevice:false, unusualLocation:false, unusualTime:false, rapidTx:false };
+    setState({ screen:'dashboard', pendingRisk:null });
+  };
+
+  // Profile switch
+  document.querySelectorAll('[data-act="profile"]').forEach(el => {
+    el.onclick = () => setState({ profileKey: el.dataset.val });
+  });
+  const toggleTrusted = document.querySelector('[data-act="toggle-trusted"]');
+  if (toggleTrusted) toggleTrusted.onclick = () => setState({ trustedContactOn: !state.trustedContactOn });
+
+  // Scam scanner
+  const scamText = document.getElementById('scam-text');
+  if (scamText) scamText.oninput = e => { state.scamInput = e.target.value; };
+  document.querySelectorAll('[data-act="scam-sample"]').forEach(el => {
+    el.onclick = () => { state.scamInput = SCAM_SAMPLES[Number(el.dataset.idx)]; state.scamResult = null; render(); };
+  });
+  const scanBtn = document.querySelector('[data-act="scan-message"]');
+  if (scanBtn) scanBtn.onclick = () => {
+    if (!state.scamInput.trim()){ toast('Paste a message to scan.'); return; }
+    setState({ scamResult: scanMessage(state.scamInput) });
+  };
+  const scamReport = document.querySelector('[data-act="scam-report"]');
+  if (scamReport) scamReport.onclick = () => toast('Reported to SafeBank fraud team.');
+  const scamDelete = document.querySelector('[data-act="scam-delete"]');
+  if (scamDelete) scamDelete.onclick = () => setState({ scamInput:'', scamResult:null });
+
+  // Admin
+  document.querySelectorAll('[data-act="open-txn"]').forEach(el => {
+    el.onclick = () => setState({ adminSelectedId: el.dataset.val, screen:'admin-transaction' });
+  });
+}
+
+render();
+</script>
+</body>
+</html>
